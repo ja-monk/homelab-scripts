@@ -1,0 +1,4 @@
+# VMs & CTs in this file (hostname) will be ignored by update_prox.sh
+host-to-ignore
+also-ignore-this-host
+ignore-this-too
