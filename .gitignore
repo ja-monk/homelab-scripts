@@ -1,3 +1,4 @@
+.gitignore
 env.sh
 prox/exclude_backup.txt
 prox/exclude_update.txt
