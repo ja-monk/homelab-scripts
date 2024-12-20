@@ -9,7 +9,7 @@ backup_dirs="/root /home /etc /opt /boot"
 date=$(date +%Y%m%d)
 host=$(hostname)
 filename="${host}_bkp_${date}.tar.gz"
-backup_dest="$mnt/backup/$host/"
+backup_dest="$backup_dir/$host/"
 
 # check log function is defined, attempt to source if not
 type -t log > /dev/null || 
