@@ -1,6 +1,9 @@
 #!/bin/bash 
 
 log(){
+    # logs first arg to directory called 'logs' in user's home and to stdout
+    # creates subfolder for name of script
+    # one log file for each day the script runs
     local base_name="$(basename $0)"
     local trimmed_name="${base_name%%.*}"
     local log_dir="$HOME/logs/$trimmed_name"
