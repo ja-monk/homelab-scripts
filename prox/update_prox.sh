@@ -198,6 +198,26 @@ initial_state() {
     }
 }
 
+check_env_file() {
+    # check for env.sh file and attempt to scp if not found
+    log "checking for env.sh file"
+    file_check=$(ssh $user@$1 '[[ -f $HOME/scripts/env.sh ]] && echo "true" || echo "false"')
+
+    if [[ "$file_check" == "true" ]]; then
+        log "env.sh file confirmed"
+    else
+        log "env.sh not found, attempting to scp"
+        ssh $user@$1 '[[ -d $HOME/scripts ]] || mkdir $HOME/scripts'
+        scp "$HOME/scripts/env.sh" $user@$1:~/scripts/
+    fi
+
+    file_check=$(ssh $user@$1 '[[ -f $HOME/scripts/env.sh ]] && echo "true" || echo "false"')
+    [[ "$file_check" == "true" ]] && log "env.sh fle confirmed" || {
+        log "ERROR: Cannot find env.sh file, exiting"
+        return 1
+    }
+}
+
 backup_ct() {
     log "Starting Backup process for CT $1"
 
@@ -215,6 +235,9 @@ backup_ct() {
         log "ERROR: SSH issue for CT $1"
         return 1
     }
+
+    # check for env.sh and exit if can't find or copy
+    check_env_file $ct_ip || return 1
 
     # check if exclude_backup.txt exists and attempt to copy over if not
     log "checking for exlcude_backup.txt file"
@@ -247,7 +270,7 @@ backup_vm() {
     select(."family"=="inet") | ."local"')
 
     # ** TODO: Validate IP **
-
+    
     # test ssh connection
     ssh -o BatchMode=yes -o ConnectTimeout=300 $user@$vm_ip exit && {
         log "SSH connection to VM $1 confirmed"
@@ -256,6 +279,9 @@ backup_vm() {
         return 1
     }
 
+    # check for env.sh and exit if can't find or copy
+    check_env_file $vm_ip || return 1
+    
     log "checking for exlcude_backup.txt file"
     file_check=$(ssh $user@$vm_ip '[[ -f $HOME/exclude_backup.txt ]] && echo "true" || echo "false"')
     [[ "$file_check" == "true" ]] && log "exclude_backup.txt file confirmed" || {
@@ -275,6 +301,7 @@ backup_vm() {
         return 1
     }
 }
+
 
 vms_bckp_update() {
     log "Starting VM Backups & Updates"
